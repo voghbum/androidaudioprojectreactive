@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  audiobook_db_postgres:
+    image: postgres
+    container_name: reactive_android_audiobook_db_postgres
+    ports:
+      - 5566:5432
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Test12345*
+      - POSTGRES_DB=audiobook_db

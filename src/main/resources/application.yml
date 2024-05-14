@@ -1,0 +1,23 @@
+audioproject-webflux:
+  database:
+    host: 127.0.0.1
+    port: 5566
+    name: audiobook_db
+    schema: public
+    username: postgres
+    password: Test12345*
+    pool:
+      size:
+        initial: 3
+        max: 10
+
+spring:
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://127.0.0.1:5566/audiobook_db
+    user: postgres
+    password: Test12345*
+    baseline-version: 0
+
+server:
+  port: 8081
