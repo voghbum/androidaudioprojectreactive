@@ -49,20 +49,20 @@ public class AudioBookServiceApplicationDal {
 
     public Mono<BookMetadata> saveBookMetadata(BookMetadata bookMetadata, String authorName) {
         return authorRepository.findAuthorByName(authorName)
-                .filter(Objects::nonNull) // Filter out null author
+                .switchIfEmpty(Mono.error(new NoSuchElementException("Author not found"))) // Handle author not found
                 .flatMap(author -> {
-                    bookMetadata.setAuthor(author.getId());
-                    return bookMetadataRepository.save(bookMetadata);
+                    BookMetadata updatedMetadata = bookMetadata.toBuilder().build(); // Clone or create new instance if mutable
+                    updatedMetadata.setAuthor(author.getId());
+                    return bookMetadataRepository.save(updatedMetadata);
                 })
-                .onErrorResume(error -> { // Handle errors
+                .onErrorResume(error -> { // Handle errors more generically if needed
                     if (error instanceof NoSuchElementException) {
                         return Mono.error(new NoSuchElementException("Author not found"));
                     } else {
-                        return Mono.error(error); // Re-emit other errors
+                        return Mono.error(error); // Propagate other errors
                     }
                 });
     }
-
     public Flux<BookMetadata> searchBookMetadataByBookName(String bookName) {
         return bookMetadataRepository.searchBookMetadataByName(bookName);
     }

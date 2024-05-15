@@ -20,7 +20,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Table(name = "bookMetadata")
 public class BookMetadata implements Serializable, Persistable<UUID> {
     @Id
