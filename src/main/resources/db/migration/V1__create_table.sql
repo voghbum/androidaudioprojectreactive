@@ -1,10 +1,12 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 create table public.author
 (
     id          uuid
-        primary key,
+        primary key DEFAULT uuid_generate_v4(),
     birth_date  date,
     book_count  integer,
-    description oid,
+    description text,
     location    varchar(255),
     name        varchar(255) not null
         constraint author_name_unique
@@ -14,8 +16,8 @@ create table public.author
 create table public.book_metadata
 (
     id               uuid
-        primary key,
-    description      oid,
+        primary key DEFAULT uuid_generate_v4(),
+    description      text,
     insert_date_time timestamp(6) not null,
     name             varchar(255) not null
         constraint book_metadata_unique
@@ -29,8 +31,8 @@ create table public.book_metadata
 create table public.book_file
 (
     id          uuid
-        primary key,
-    body        oid,
+        primary key DEFAULT uuid_generate_v4(),
+    body        text,
     book_audio  oid,
     language    varchar(255),
     metadata_id uuid

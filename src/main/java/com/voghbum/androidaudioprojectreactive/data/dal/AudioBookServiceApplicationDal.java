@@ -11,7 +11,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -51,8 +50,8 @@ public class AudioBookServiceApplicationDal {
         return authorRepository.findAuthorByName(authorName)
                 .switchIfEmpty(Mono.error(new NoSuchElementException("Author not found"))) // Handle author not found
                 .flatMap(author -> {
-                    BookMetadata updatedMetadata = bookMetadata.toBuilder().build(); // Clone or create new instance if mutable
-                    updatedMetadata.setAuthor(author.getId());
+                    BookMetadata updatedMetadata = new BookMetadata(bookMetadata); // Clone or create new instance if mutable
+                    updatedMetadata.setAuthorId(author.getId());
                     return bookMetadataRepository.save(updatedMetadata);
                 })
                 .onErrorResume(error -> { // Handle errors more generically if needed
@@ -68,7 +67,7 @@ public class AudioBookServiceApplicationDal {
     }
 
     public Flux<BookFile> findAllBookFileByBookMetadataId(UUID bookMetadataId) {
-        return bookFileRepository.findAllByBookMetadata(bookMetadataId);
+        return bookFileRepository.findAllByBookMetadataId(bookMetadataId);
     }
 
     public Mono<BookFile> saveBookFile(BookFile bookFile) {
