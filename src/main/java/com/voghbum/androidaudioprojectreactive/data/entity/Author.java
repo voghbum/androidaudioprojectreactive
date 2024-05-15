@@ -21,7 +21,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Table(name = "author")
 public class Author implements Serializable, Persistable<UUID> {
     @Id
