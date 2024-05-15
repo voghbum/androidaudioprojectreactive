@@ -28,7 +28,13 @@ public class BookMetadataService {
 
     public Flux<BookMetadataDTO> findAllBookMetadata() {
         Flux<BookMetadata> bookMetadata = audioBookServiceApplicationDal.findAllBookMetadata();
-        return bookMetadata.map(bookMetadataMapper::toBookMetadataDTO);
+        return bookMetadata.flatMap(bmd -> audioBookServiceApplicationDal
+                .findAuthorById(bmd.getAuthorId())
+                .map(a -> {
+                    BookMetadataDTO bmDto = bookMetadataMapper.toBookMetadataDTO(bmd);
+                    bmDto.setAuthorName(a.getName());
+                    return bmDto;
+                }));
     }
 
     public Flux<BookMetadataDTO> searchBookMetadataByBookName(String name) {

@@ -81,4 +81,8 @@ public class AudioBookServiceApplicationDal {
     public Mono<BookFile> findBookFileById(UUID id) {
         return bookFileRepository.findById(id);
     }
+
+    public Mono<Author> findAuthorById(UUID authorId) {
+        return authorRepository.findById(authorId);
+    }
 }
