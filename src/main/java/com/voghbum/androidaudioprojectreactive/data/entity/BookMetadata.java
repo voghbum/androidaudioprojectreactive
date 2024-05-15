@@ -24,15 +24,15 @@ import java.util.UUID;
 @Table(name = "bookMetadata")
 public class BookMetadata implements Serializable, Persistable<UUID> {
     @Id
-    public UUID id;
-    public UUID author;
-    public String name;
-    public String description;
-    public String writtenYear;
+    private UUID id;
+    private UUID author;
+    private String name;
+    private String description;
+    private String writtenYear;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    public LocalDateTime insertDateTime = LocalDateTime.now();
+    private LocalDateTime insertDateTime = LocalDateTime.now();
 
     @Transient
     private boolean isUpdated = false;

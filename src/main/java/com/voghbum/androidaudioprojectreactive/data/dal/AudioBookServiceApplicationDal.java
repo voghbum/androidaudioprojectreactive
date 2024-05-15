@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -45,27 +47,28 @@ public class AudioBookServiceApplicationDal {
         return bookMetadataRepository.findAllByAuthorId(authorId);
     }
 
-    public Mono<BookMetadata> saveBookMetadata(BookMetadata bookMetadata) {
-        /*
-        var author = authorRepository.findAuthorByName(bookMetadata.author.name);
-        if(author == null) {
-            throw new RepositoryException("author cannot found with given name: " + bookMetadata.author.name);
-        }
-        bookMetadata.author = author;
-        return bookMetaDataRepository.save(bookMetadata);
-        */
-        Mono<Author> author = authorRepository.findAuthorByName(bookMetadata.author.name);
-        author.subscribe(a -> {
-            bookMetadata.
-        })
+    public Mono<BookMetadata> saveBookMetadata(BookMetadata bookMetadata, String authorName) {
+        return authorRepository.findAuthorByName(authorName)
+                .filter(Objects::nonNull) // Filter out null author
+                .flatMap(author -> {
+                    bookMetadata.setAuthor(author.getId());
+                    return bookMetadataRepository.save(bookMetadata);
+                })
+                .onErrorResume(error -> { // Handle errors
+                    if (error instanceof NoSuchElementException) {
+                        return Mono.error(new NoSuchElementException("Author not found"));
+                    } else {
+                        return Mono.error(error); // Re-emit other errors
+                    }
+                });
     }
 
     public Flux<BookMetadata> searchBookMetadataByBookName(String bookName) {
-        return null; //todo: need custom sql
+        return bookMetadataRepository.searchBookMetadataByName(bookName);
     }
 
     public Flux<BookFile> findAllBookFileByBookMetadataId(UUID bookMetadataId) {
-        return null; //todo: need custom sql
+        return bookFileRepository.findAllByBookMetadata(bookMetadataId);
     }
 
     public Mono<BookFile> saveBookFile(BookFile bookFile) {

@@ -25,14 +25,14 @@ import java.util.UUID;
 @Table(name = "author")
 public class Author implements Serializable, Persistable<UUID> {
     @Id
-    public UUID id;
-    public String name;
-    public String description;
-    public String location;
-    public int bookCount;
+    private UUID id;
+    private String name;
+    private String description;
+    private String location;
+    private int bookCount;
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
-    public LocalDate birthDate;
+    private LocalDate birthDate;
     @Transient
     private boolean isUpdated = false;
 

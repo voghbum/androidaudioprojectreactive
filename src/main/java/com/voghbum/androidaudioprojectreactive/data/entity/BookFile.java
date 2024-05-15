@@ -19,11 +19,11 @@ import java.util.UUID;
 @Table(name = "bookFile")
 public class BookFile implements Serializable, Persistable<UUID> {
     @Id
-    public UUID id;
-    public UUID bookMetadata;
-    public byte[] bookAudio;
-    public String body;
-    public String language;
+    private UUID id;
+    private UUID bookMetadata;
+    private byte[] bookAudio;
+    private String body;
+    private String language;
     @Transient
     private boolean isUpdated = false;
 
