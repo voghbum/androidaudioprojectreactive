@@ -21,11 +21,21 @@ public class BookMetadataService {
     }
 
     public Mono<BookMetadataDTO> saveBookMetadata(BookMetadataRequestDTO bookMetadataRequestDTO) {
-        Mono<BookMetadata> bookMetadata = audioBookServiceApplicationDal.saveBookMetadata(bookMetadataMapper.toBookMetadata(bookMetadataRequestDTO),
-                bookMetadataRequestDTO.getAuthorName());
-        return bookMetadata.map(bookMetadataMapper::toBookMetadataDTO);
-    }
+        Mono<BookMetadata> bookMetadataMono = audioBookServiceApplicationDal.saveBookMetadata(
+                bookMetadataMapper.toBookMetadata(bookMetadataRequestDTO),
+                bookMetadataRequestDTO.getAuthorName()
+        );
 
+        return bookMetadataMono
+                .flatMap(bookMetadata -> {
+                    return audioBookServiceApplicationDal.findBookMetadataById(bookMetadata.getAuthorId())
+                            .map(author -> {
+                                BookMetadataDTO bookMetadataDTO = bookMetadataMapper.toBookMetadataDTO(bookMetadata);
+                                bookMetadataDTO.setAuthorName(author.getName());
+                                return bookMetadataDTO;
+                            });
+                });
+    }
     public Flux<BookMetadataDTO> findAllBookMetadata() {
         Flux<BookMetadata> bookMetadata = audioBookServiceApplicationDal.findAllBookMetadata();
         return bookMetadata.flatMap(bmd -> audioBookServiceApplicationDal
@@ -39,7 +49,13 @@ public class BookMetadataService {
 
     public Flux<BookMetadataDTO> searchBookMetadataByBookName(String name) {
         Flux<BookMetadata> books = audioBookServiceApplicationDal.searchBookMetadataByBookName(name);
-        return books.map(bookMetadataMapper::toBookMetadataDTO);
+        return books.flatMap(bmd -> audioBookServiceApplicationDal
+                .findAuthorById(bmd.getAuthorId())
+                .map(a -> {
+                    BookMetadataDTO bmDto = bookMetadataMapper.toBookMetadataDTO(bmd);
+                    bmDto.setAuthorName(a.getName());
+                    return bmDto;
+                }));
     }
 
 }

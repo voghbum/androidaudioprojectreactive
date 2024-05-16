@@ -22,7 +22,7 @@ create table public.book_metadata
     name             varchar(255) not null
         constraint book_metadata_unique
             unique,
-    written_year     varchar(255),
+    written_year     varchar(4),
     author_id        uuid
         constraint book_metadata_author_id_ref
             references public.author
@@ -33,7 +33,7 @@ create table public.book_file
     id          uuid
         primary key DEFAULT uuid_generate_v4(),
     body        text,
-    book_audio  oid,
+    audio_path  varchar(255),
     language    varchar(255),
     metadata_id uuid
         constraint book_file_metadata_id_ref

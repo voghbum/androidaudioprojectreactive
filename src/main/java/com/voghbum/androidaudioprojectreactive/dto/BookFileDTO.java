@@ -7,8 +7,6 @@ public class BookFileDTO {
     private String name;
     private String language;
 
-
-
     public String getName() {
         return name;
     }

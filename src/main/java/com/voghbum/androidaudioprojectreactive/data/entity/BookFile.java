@@ -7,6 +7,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.UUID;
 
 @Table(name = "book_file")
@@ -15,7 +16,7 @@ public class BookFile implements Serializable, Persistable<UUID> {
     private UUID id;
     @Column("metadata_id")
     private UUID bookMetadataId;
-    private long audioOID;
+    private String audioPath;
     private String body;
     private String language;
     @Transient
@@ -67,11 +68,11 @@ public class BookFile implements Serializable, Persistable<UUID> {
         return this.isUpdated || id == null;
     }
 
-    public long getAudioOID() {
-        return audioOID;
+    public String getAudioPath() {
+        return audioPath;
     }
 
-    public void setAudioOID(long audioOID) {
-        this.audioOID = audioOID;
+    public void setAudioPath(String path) {
+        this.audioPath = path;
     }
 }

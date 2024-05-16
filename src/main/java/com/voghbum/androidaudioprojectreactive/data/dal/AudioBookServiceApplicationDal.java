@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.awt.print.Book;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -46,6 +45,10 @@ public class AudioBookServiceApplicationDal {
         return bookMetadataRepository.findAll();
     }
 
+    public Mono<BookMetadata> findBookMetadataById(UUID id) {
+        return bookMetadataRepository.findById(id);
+    }
+
     public Flux<BookMetadata> findAllBookMetadataByAuthorId(UUID authorId) {
         return bookMetadataRepository.findAllByAuthorId(authorId);
     }
@@ -66,6 +69,11 @@ public class AudioBookServiceApplicationDal {
                     }
                 });
     }
+
+    public Mono<BookMetadata> findBookMetadataByName(String bookName) {
+        return bookMetadataRepository.findBookMetadataByName(bookName);
+    }
+
     public Flux<BookMetadata> searchBookMetadataByBookName(String bookName) {
         return bookMetadataRepository.searchBookMetadataByName(bookName);
     }
@@ -76,29 +84,6 @@ public class AudioBookServiceApplicationDal {
 
     public Mono<BookFile> saveBookFile(BookFile bookFile) {
         return bookFileRepository.save(bookFile);
-    }
-
-    public Mono<Long> saveBookFileAudio(byte[] audio) {
-        return createLargeObject(audio);
-    }
-
-    private Mono<Long> createLargeObject(byte[] data) {
-        return dbClient.sql("SELECT lo_create(0)")
-                .fetch()
-                .first()
-                .map(result -> (Long) result.get("lo_create"))
-                .flatMap(oid -> dbClient.sql("SELECT lo_open(:oid, 131072)") // 131072 is INV_WRITE
-                        .bind("oid", oid)
-                        .fetch()
-                        .rowsUpdated()
-                        .then(Mono.just(oid))
-                        .flatMap(o -> dbClient.sql("SELECT lowrite(lo_open(:oid, 131072), :data)")
-                                .bind("oid", o)
-                                .bind("data", data)
-                                .fetch()
-                                .rowsUpdated()
-                                .then(Mono.just(o))
-                        ));
     }
 
     public Flux<BookFile> findAllBookFiles() {

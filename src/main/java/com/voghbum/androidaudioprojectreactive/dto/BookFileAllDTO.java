@@ -3,11 +3,19 @@ package com.voghbum.androidaudioprojectreactive.dto;
 public class BookFileAllDTO {
     private String name;
     private String language;
-    private byte[] bookAudio;
+    private String audioPath;
     private String body;
 
     public String getName() {
         return name;
+    }
+
+    public String getAudioPath() {
+        return audioPath;
+    }
+
+    public void setAudioPath(String audioPath) {
+        this.audioPath = audioPath;
     }
 
     public void setName(String name) {
@@ -22,13 +30,6 @@ public class BookFileAllDTO {
         this.language = language;
     }
 
-    public byte[] getBookAudio() {
-        return bookAudio;
-    }
-
-    public void setBookAudio(byte[] bookAudio) {
-        this.bookAudio = bookAudio;
-    }
 
     public String getBody() {
         return body;
