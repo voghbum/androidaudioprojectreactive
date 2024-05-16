@@ -14,6 +14,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.awt.print.Book;
 import java.io.FileNotFoundException;
 import java.util.UUID;
 
@@ -29,6 +30,8 @@ public class BookFileService {
     }
 
     //todo challenge
+
+    //todo challenge
     public Mono<BookFileDTO> saveBookFile(BookFileWithBodyDTO bookFileDTO) {
         return Mono.just(bookFileDTO)
                 .subscribeOn(Schedulers.boundedElastic())  // Move computation to a separate thread pool
@@ -37,30 +40,23 @@ public class BookFileService {
                     return Mono.fromCallable(() -> api.get(bdto.getBody()))  // Wrap the blocking call
                             .subscribeOn(Schedulers.boundedElastic());  // Execute the blocking call on a boundedElastic scheduler
                 })
-                .map(audio -> {
-                    // Create and populate the BookFileAllDTO
-                    BookFileAllDTO bookFileAll = new BookFileAllDTO();
-                    bookFileAll.setBody(bookFileDTO.getBody());
-                    bookFileAll.setLanguage(bookFileDTO.getLanguage());
-                    bookFileAll.setBookAudio(audio);
-                    bookFileAll.setName(bookFileDTO.getName());
-                    return bookFileAll;
-                })
-                .flatMap(bookFileAll -> {
-                    // Convert to Entity and fetch metadata
-                    BookFile entity = bookFileMapper.toBookFile(bookFileAll);
-                    return audioBookServiceApplicationDal.searchBookMetadataByBookName(bookFileAll.getName())
-                            .next()  // Since only one item is expected
-                            .doOnNext(bookMetadata -> entity.setBookMetadataId(bookMetadata.getId()))
-                            .thenReturn(entity);
-                })
+                .flatMap(audio -> audioBookServiceApplicationDal.saveBookFileAudio(audio)  // Save audio and get OID
+                        .flatMap(audioOID -> {
+                            BookFile bookFile = new BookFile();
+                            bookFile.setBody(bookFileDTO.getBody());
+                            bookFile.setLanguage(bookFileDTO.getLanguage());
+                            bookFile.setAudioOID(audioOID);
+                            return audioBookServiceApplicationDal.searchBookMetadataByBookName(bookFileDTO.getName())
+                                    .next()  // Since only one item is expected
+                                    .doOnNext(bookMetadata -> bookFile.setBookMetadataId(bookMetadata.getId()))
+                                    .thenReturn(bookFile);  // Return the populated bookFile entity
+                        }))
                 .flatMap(entity -> {
                     // Save the entity and convert to DTO
                     return audioBookServiceApplicationDal.saveBookFile(entity)
                             .map(bookFileMapper::toBookFileDTO);
                 });
     }
-
 //    public Mono<BookFileDTO> saveBookFile(BookFileWithBodyDTO bookFileDTO) {
 //        Mono<BookFileWithBodyDTO> requestMono = Mono.just(bookFileDTO);
 //       return requestMono.flatMap(bdto -> {

@@ -15,7 +15,7 @@ public class BookFile implements Serializable, Persistable<UUID> {
     private UUID id;
     @Column("metadata_id")
     private UUID bookMetadataId;
-    private byte[] bookAudio;
+    private long audioOID;
     private String body;
     private String language;
     @Transient
@@ -36,14 +36,6 @@ public class BookFile implements Serializable, Persistable<UUID> {
 
     public void setBookMetadataId(UUID bookMetadataId) {
         this.bookMetadataId = bookMetadataId;
-    }
-
-    public byte[] getBookAudio() {
-        return bookAudio;
-    }
-
-    public void setBookAudio(byte[] bookAudio) {
-        this.bookAudio = bookAudio;
     }
 
     public String getBody() {
@@ -73,5 +65,13 @@ public class BookFile implements Serializable, Persistable<UUID> {
     @Override
     public boolean isNew() {
         return this.isUpdated || id == null;
+    }
+
+    public long getAudioOID() {
+        return audioOID;
+    }
+
+    public void setAudioOID(long audioOID) {
+        this.audioOID = audioOID;
     }
 }
