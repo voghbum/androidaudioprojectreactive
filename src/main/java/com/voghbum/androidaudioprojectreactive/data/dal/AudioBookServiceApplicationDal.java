@@ -55,17 +55,17 @@ public class AudioBookServiceApplicationDal {
 
     public Mono<BookMetadata> saveBookMetadata(BookMetadata bookMetadata, String authorName) {
         return authorRepository.findAuthorByName(authorName)
-                .switchIfEmpty(Mono.error(new NoSuchElementException("Author not found"))) // Handle author not found
+                .switchIfEmpty(Mono.error(new NoSuchElementException("Author not found")))
                 .flatMap(author -> {
-                    BookMetadata updatedMetadata = new BookMetadata(bookMetadata); // Clone or create new instance if mutable
+                    BookMetadata updatedMetadata = new BookMetadata(bookMetadata);
                     updatedMetadata.setAuthorId(author.getId());
                     return bookMetadataRepository.save(updatedMetadata);
                 })
-                .onErrorResume(error -> { // Handle errors more generically if needed
+                .onErrorResume(error -> {
                     if (error instanceof NoSuchElementException) {
                         return Mono.error(new NoSuchElementException("Author not found"));
                     } else {
-                        return Mono.error(error); // Propagate other errors
+                        return Mono.error(error);
                     }
                 });
     }

@@ -19,11 +19,15 @@ import org.springframework.http.ResponseEntity;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.UUID;
+
+import static java.lang.StringTemplate.STR;
 
 @RestController
 @RequestMapping("/v1/api/bookFile")
@@ -83,11 +87,15 @@ public class BookFileController {
                             long end = range.getRangeEnd(contentLength);
                             long rangeLength = end - start + 1;
 
+                            SeekableByteChannel byteChannel = Files.newByteChannel(filePath, StandardOpenOption.READ);
+                            byteChannel.position(start);
+                            InputStreamResource inputStreamResource = new InputStreamResource(Channels.newInputStream(byteChannel));
+
                             return Mono.just(ResponseEntity.status(206)
                                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
                                     .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(rangeLength))
                                     .header(HttpHeaders.CONTENT_RANGE, STR."bytes \{start}-\{end}/\{contentLength}")
-                                    .body(new InputStreamResource(Files.newInputStream(filePath, StandardOpenOption.READ))));
+                                    .body(inputStreamResource));
                         }
                     } catch (IOException e) {
                         return Mono.just(ResponseEntity.status(500).build());

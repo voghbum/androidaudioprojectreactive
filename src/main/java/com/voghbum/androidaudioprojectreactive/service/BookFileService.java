@@ -41,7 +41,6 @@ public class BookFileService {
                 .switchIfEmpty(Mono.error(new RuntimeException("BookMetadata not found with name: " + bookFileDTO.getName())))
                 .flatMap(bookMetadata -> {
                     return Mono.just(bookFileDTO)
-                            .subscribeOn(Schedulers.boundedElastic())
                             .flatMap(bdto -> {
                                 TextToSpeechAPI api = new TextToSpeechFactory().create(TTSType.OFFLINE);
                                 return Mono.fromCallable(() -> api.get(bdto.getBody()))
